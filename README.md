@@ -5,7 +5,7 @@
 用到的正则：        
 String reg = "\\<a href\\=\"(https\\://mp\\.weixin\\.qq\\.com/s\\?__biz=MzI5MzYzNDU5Mg==\\&.*?)\"";
 
-2. 通过HTTP请求详情页，获取视频页信息的Javascrip对象，将对象转换为json格式，使用fastJson解析获取所有清晰度视频地址。
+2. 通过HTTP请求详情页，获取视频页信息的Javascript对象，将对象转换为json格式，使用fastJson解析获取所有清晰度视频地址。
 
 用到的正则：
 String reg = "(?m)var videoPageInfos = (\\[[\\s\\S]*?\\]);[\\s\\S]*?window.__videoPageInfos";
