@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,15 +16,20 @@ import java.util.regex.Pattern;
  * 入口
  */
 public class Main {
+    static List<Long> list = new ArrayList<>();     // 测试网络延迟
 
     public static String httpGet(String url) {
+        long t1 = System.currentTimeMillis();
         HttpRequest request = HttpRequest.get(url);
         HttpResponse response = request.execute();
         String body = response.body();
+        long t2 = System.currentTimeMillis();
+        list.add(t2 - t1);
         return body;
     }
 
     public static void main(String[] args) {
+        long t1 = System.currentTimeMillis();
         // 1. HTTP请求目录页，使用正则表达式，获取所有详情页链接地址
         String INDEX_URL = "https://mp.weixin.qq.com/s/idfpQeh5P5VxXJBlnvVJWQ";
         String body = httpGet(INDEX_URL);
@@ -75,5 +81,13 @@ public class Main {
             }
 //            break;
         }
+        long t2 = System.currentTimeMillis();
+        long allTime = t2 - t1;
+
+        long time = 0;
+        for(Long l : list) time += l;
+        long avg = time / list.size();
+        System.out.println(StrUtil.format("HTTP共请求{}次，耗时{}ms，平均{}ms", list.size(), time, avg));
+        System.out.println(StrUtil.format("操作共耗时{}ms, 平均{}ms", allTime, allTime / list.size()));
     }
 }
