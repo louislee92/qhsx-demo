@@ -15,3 +15,6 @@ String reg = "(?m)var videoPageInfos = (\\[[\\s\\S]*?\\]);[\\s\\S]*?window.__vid
 （2）详情页解析正则是固定的，如果该网页后期变更结构或者变更链接地址的话，需要重新编写正则表达式
 
 项目地址：https://github.com/louislee92/qhsx-demo
+
+
+2023-10-18：腾讯前端已修改视频获取逻辑，访问地址返回403未授权。

@@ -3,9 +3,13 @@ package com.demo;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -57,25 +61,48 @@ public class Main {
 //                System.out.println(jsObj);
                 // 得到的字符串为js对象，需要转换为json字符串
                 String jsonStr = jsObj
-                        .replaceAll("(^ [0-9a-z_]+?):", "'$1':")
-                        .replaceAll("(\\|\\|.*?),", ",")
+                        .replaceAll("([0-9a-z_]+?):\\s", "'$1': ");
+                jsonStr = jsonStr
+                        .replaceAll("(\\|\\|.*?),", ",");
+                jsonStr = jsonStr
                         .replaceAll("(\\*[\\s\\S]*?)([,\\}])", "$2");
-
+                jsonStr = jsonStr.replaceAll("\\((.*?)\\).*?\\),", "$1,");
+//                System.out.println(jsonStr);
                 JSONArray jsonArray = JSONArray.parseArray(jsonStr);
-                System.out.println(jsonArray);
+//                System.out.println(jsonArray);
                 for(int j = 0; j < jsonArray.size(); j++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(j);
                     String source_nickname = jsonObject.getString("source_nickname");
                     String content_noencode = jsonObject.getString("content_noencode");
-                    System.out.println(StrUtil.format("{}:{}【{}】",
-                            source_nickname, content_noencode, j + 1));
+//                    System.out.println(StrUtil.format("{}:{}【{}】",
+//                            source_nickname, content_noencode, j + 1));
+                    String reg1 = "([0-9\\-]{5})";
+                    Pattern pattern1 = Pattern.compile(reg1);
+                    Matcher matcher1 = pattern1.matcher(content_noencode);
+                    String name = "XXX";
+                    if(matcher1.find()) {
+                        String ss = matcher1.group(1);
+                        String[] arr = ss.split("-");
+                        name = "人纪系列针灸篇" + arr[j];
+                        System.out.println(name);
+                    }
                     JSONArray videoArr = jsonObject.getJSONArray("mp_video_trans_info");
                     for(int k = 0; k < videoArr.size(); k++) {
                         JSONObject videoObj = videoArr.getJSONObject(k);
                         String quality = videoObj.getString("video_quality_wording");
                         String videoUrl = videoObj.getString("url");
                         videoUrl = videoUrl.replaceAll("&amp;", "&");
-                        System.out.println(StrUtil.format("【{}】{}", quality, videoUrl));
+                        if("超清".equals(quality)){
+                            videoUrl = "https" + videoUrl.substring(4);
+                            System.out.println(StrUtil.format("【{}】{}", quality, videoUrl));
+                            try {
+                                HttpUtil.download(videoUrl, new FileOutputStream(new File("F://qhsx/" + name + ".mp4")), true);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        }
+
                     }
                 }
             }
